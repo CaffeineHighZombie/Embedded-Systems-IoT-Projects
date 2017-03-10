@@ -10,8 +10,7 @@ void setup() {
 }
 
 // Routine to distance data from Ultrasound sensor
-int getSensorData()
-{
+int getSensorData() {
   // Define variables
   long duration;
   int distance;
@@ -36,11 +35,33 @@ int getSensorData()
 
 void loop() {
   // Define an array for output collection over a time period
-  //int distanceArr[100];
+  int arrSize = 100; // Define array size - for sensor data normalization
+  int distanceArr[arrSize];
+  int distance;
 
+  // Collect the 100 data points from sensor and store in the array
+  for(int i=0; i<arrSize; i++) {
+    distanceArr[i] = getSensorData();
+    delay(10); // A small 10ms delay between data collection - change it according to accruacy needed or variance in measured distance
+  }
+  
+  // Sort the Array
+  for(int i=0; i<arrSize; i++) {
+    for(int j=i+1; j<arrSize; j++) {
+      if(distanceArr[i] > distanceArr[j] ) {
+           int temp = distanceArr[i];
+           distanceArr[i] = distanceArr[j];
+           distanceArr[j] = temp;
+      }
+    }
+  }
 
+  // Slicing just the mid data range (<1sigma) and finding the mean of that
+  
+  
   // Print the distance on the Serial Monitor
   Serial.print("Distance: ");
-  Serial.println(getSensorData());
+  Serial.println(distanceArr[arrSize/2]);
+  //Serial.println(distance);
   delay(100);
 }
