@@ -42,7 +42,7 @@ void loop() {
   // Collect the 100 data points from sensor and store in the array
   for(int i=0; i<arrSize; i++) {
     distanceArr[i] = getSensorData();
-    delay(10); // A small 10ms delay between data collection - change it according to accruacy needed or variance in measured distance
+    delay(1); // A small 1ms delay between data collection - change it according to accruacy needed or variance in measured distance
   }
   
   // Sort the Array
@@ -57,11 +57,14 @@ void loop() {
   }
 
   // Slicing just the mid data range (<1sigma) and finding the mean of that
-  
+  long sum = 0;
+  for(int i=0; i<arrSize/2; i++) {
+    sum += distanceArr[i];
+  }
+  distance = sum/(arrSize/2);
   
   // Print the distance on the Serial Monitor
   Serial.print("Distance: ");
-  Serial.println(distanceArr[arrSize/2]);
-  //Serial.println(distance);
+  Serial.println(distance);
   delay(100);
 }
