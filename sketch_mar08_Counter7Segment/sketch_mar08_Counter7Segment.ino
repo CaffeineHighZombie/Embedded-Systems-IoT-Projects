@@ -19,7 +19,7 @@ byte seven_seg_digits[10][8] = { { 1,1,1,0,1,1,1,0 },  // = 0
 int incSwitch = 11;
 int decSwitch = 12;
 
-// Create 
+// Create boolean variables for software debouncing for both the switches
 boolean incLastButton = LOW;
 boolean incCurrentButton = LOW;
 boolean decLastButton = LOW;
@@ -30,21 +30,22 @@ byte count = 0;
                                                  
 void setup() {                
   //7 Segment display setup
-  pinMode(2, OUTPUT);   
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
+  pinMode(2, OUTPUT); // Segment A  
+  pinMode(3, OUTPUT); // Segment B
+  pinMode(4, OUTPUT); // Segment C
+  pinMode(5, OUTPUT); // Segment D
+  pinMode(6, OUTPUT); // Segment E
+  pinMode(7, OUTPUT); // Segment F
+  pinMode(8, OUTPUT); // Segment G
+  pinMode(9, OUTPUT); // Segment dp
   
   // setting switch pins to input mode
   pinMode(incSwitch, INPUT);
-  pinMode(decSwitch, OUTPUT);
+  pinMode(decSwitch, INPUT);
   
 }
 
+// Software debounce for increment switch
 boolean debounceInc(boolean last)
 {
   boolean current = digitalRead(incSwitch);
@@ -56,6 +57,7 @@ boolean debounceInc(boolean last)
   return current;
 }
 
+// Software debounce for decrement switch
 boolean debounceDec(boolean last)
 {
   boolean current = digitalRead(decSwitch);
@@ -66,7 +68,8 @@ boolean debounceDec(boolean last)
   }
   return current;
 }
-  
+
+// Routine to write integer value on to 7 Segment LED
 void sevenSegWrite(byte digit) {
   byte pin = 2;
   for (byte segCount = 0; segCount < 8; ++segCount) {
@@ -76,25 +79,29 @@ void sevenSegWrite(byte digit) {
 }
 
 void loop() {
+  // Check if the increment switch has been pressed
   incCurrentButton = debounceInc(incLastButton);
   if (incLastButton == LOW && incCurrentButton == HIGH)
   {
-    count++;
+    count++; // Increase the count variable
   }
   incLastButton = incCurrentButton;
-  
+
+  // Check if the decrement switch has been pressed
   decCurrentButton = debounceDec(decLastButton);
   if (decLastButton == LOW && decCurrentButton == HIGH)
   {
-    count--;
+    count--; // Decrement the count variable
   }
   decLastButton = decCurrentButton;
-  if (count>=0 && count<10) {
-    sevenSegWrite(count);  
+
+  // Write count value on the display
+  if (count>=0 && count<10) { // Check bound conditions
+    sevenSegWrite(count);  // Call the display write routine
   }   
   else {
-    count = 0;
+    count = 0; // If the count crosses the (0,9) bounds, set it to zero - not a perfect solution - but works till another display segment with carry is introduced, if needed
   }
    
-  delay(100);
+  delay(100); // A small 100ms delay
 }
