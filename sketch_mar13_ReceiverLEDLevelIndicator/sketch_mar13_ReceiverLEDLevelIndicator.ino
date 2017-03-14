@@ -18,35 +18,65 @@ void setup() {
   
 }
 
-void loop() {
-  // Switch Low level indicator on, give one second delay and turn off
-  digitalWrite(lowLed, HIGH);
-  delay(1000);
+// Subroutine to turn off all LEDs
+void turnOffAll() {
   digitalWrite(lowLed, LOW);
-
-  // Switch below one-fourth level indicator on, give one second delay and turn off
-  digitalWrite(oneLed, HIGH);
-  delay(1000);
   digitalWrite(oneLed, LOW);
-  
-  // Switch below two-fourth level indicator on, give one second delay and turn off
-  digitalWrite(twoLed, HIGH);
-  delay(1000);
   digitalWrite(twoLed, LOW);
-  
-  // Switch below three-fourth level indicator on, give one second delay and turn off
-  digitalWrite(threeLed, HIGH);
-  delay(1000);
   digitalWrite(threeLed, LOW);
-
-  // Switch below full level indicator on, give one second delay and turn off
-  digitalWrite(fourLed, HIGH);
-  delay(1000);
   digitalWrite(fourLed, LOW);
-  
-  // Switch High level indicator on, give one second delay and turn off
-  digitalWrite(highLed, HIGH);
-  delay(1000);
   digitalWrite(highLed, LOW);
 
+  // Start Serial
+  Serial.begin(9600);
+  
+}
+
+// Subroutine to turn on one particular LED given the argument
+void turnOnLed(int ledPin) {
+  digitalWrite(ledPin, HIGH);
+}
+
+void loop() {
+  /*
+  // Wait till there's data on the Serial
+  while(Serial.available() == 0);
+  char sData = Serial.read(); // Data sent over the serial line being char byte data
+  */
+  char sData[6] = {'0', '1', '2', '3', '4', '5'};
+  for(int i=0; i<6; i++) {
+  
+  // Map LED switch-on to the input serial data
+  switch (sData[i]) {
+    case '0':
+      turnOffAll();
+      turnOnLed(lowLed);
+      break;
+    case '1':
+      turnOffAll();
+      turnOnLed(oneLed);
+      break;
+    case '2':
+      turnOffAll();
+      turnOnLed(twoLed);
+      break;
+    case '3':
+      turnOffAll();
+      turnOnLed(threeLed);
+      break;
+    case '4':
+      turnOffAll();
+      turnOnLed(fourLed);
+      break;
+    case '5':
+      turnOffAll();
+      turnOnLed(highLed);
+      break;
+
+  }
+  delay(1000);
+  }
+  
+  delay(100); // Just an arbitrary 100ms delay
+  
 }
