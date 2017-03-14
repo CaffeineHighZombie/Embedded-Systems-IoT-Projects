@@ -44,6 +44,7 @@ void loop() {
   int timeDelay = 100; // Delay in milliseconds between data collection - change it according to rate of variance in measured distance
   int arrSize = 10; // Define array size
   int distanceArr[arrSize];
+  int distance;
   int range;
   
   // Collect the 100 data points from sensor and store in the array
@@ -67,8 +68,11 @@ void loop() {
   Serial.print("Distance: ");
   Serial.println(distanceArr[arrSize/2]);
 
+  // Get the median of the sorted sensor data array and constrain it low and high water levels to clip out any noise
+  distance = constrain(distanceArr[arrSize/2], highPoint, lowPoint);
+  
   // Calculate the range as level gradations with median of sensor data array
-  range = (distanceArr[arrSize/2] - highPoint) * 100 / lowPoint;
+  range = (distance - highPoint) * 100 / lowPoint;
 
   // Print range on the Serial Monitor
   Serial.println(range);
