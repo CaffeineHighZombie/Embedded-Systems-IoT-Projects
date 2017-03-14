@@ -16,6 +16,9 @@ void setup() {
   pinMode(fourLed, OUTPUT);
   pinMode(highLed, OUTPUT);
   
+  // Start Serial
+  Serial.begin(9600);
+  
 }
 
 // Subroutine to turn off all LEDs
@@ -26,9 +29,6 @@ void turnOffAll() {
   digitalWrite(threeLed, LOW);
   digitalWrite(fourLed, LOW);
   digitalWrite(highLed, LOW);
-
-  // Start Serial
-  Serial.begin(9600);
   
 }
 
@@ -38,16 +38,13 @@ void turnOnLed(int ledPin) {
 }
 
 void loop() {
-  /*
+
   // Wait till there's data on the Serial
   while(Serial.available() == 0);
   char sData = Serial.read(); // Data sent over the serial line being char byte data
-  */
-  char sData[6] = {'0', '1', '2', '3', '4', '5'};
-  for(int i=0; i<6; i++) {
   
   // Map LED switch-on to the input serial data
-  switch (sData[i]) {
+  switch (sData) {
     case '0':
       turnOffAll();
       turnOnLed(lowLed);
@@ -72,11 +69,11 @@ void loop() {
       turnOffAll();
       turnOnLed(highLed);
       break;
+  
+  }
 
-  }
-  delay(1000);
-  }
-  
   delay(100); // Just an arbitrary 100ms delay
-  
+  // Flush out serial buffer
+  Serial.flush();  
+
 }
