@@ -63,15 +63,23 @@ void loop() {
     }
   }
  
-  // Print the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.println(distanceArr[arrSize/2]);
-  
   // Calculate the range as level gradations with median of sorted sensor data array
   range = (distanceArr[arrSize/2] - highPoint) * 100 / (lowPoint - highPoint);
   // Constrain the range between 0 and 100 to clip noise or extraneous data
   range = constrain(range, 0, 100);
   
-  // Print range on the Serial Monitor
-  Serial.println(range);
+  // Create level gradations based on range and print it on serial
+  if (range >= 95) 
+    Serial.println(0);
+  else if (range >= 75)
+    Serial.println(1);
+  else if (range >= 50)
+    Serial.println(2);
+  else if (range >= 25)
+    Serial.println(3);
+  else if (range >= 5)
+    Serial.println(4);
+  else
+    Serial.println(5);
+
 }
