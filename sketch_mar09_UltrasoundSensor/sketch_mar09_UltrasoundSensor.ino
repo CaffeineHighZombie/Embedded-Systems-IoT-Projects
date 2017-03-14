@@ -3,6 +3,12 @@
 const int trigPin = 9;
 const int echoPin = 10;
 
+// Define water level points - it would inverse of tank height due to use of ultrasound sensor
+// Edit them according to use case and scenario - currently in cm
+const float highPoint = 3; // Highest tank full point
+const float lowPoint = 20; // Tank empty point
+// const float buffPoint = 2; // Give some buffer for motor switch on/off - taking into account possible sensor noise and signal delays
+
 void setup() {
   pinMode(trigPin, OUTPUT); // Set the trigPin as an Output
   pinMode(echoPin, INPUT); // Set the echoPin as an Input
@@ -38,7 +44,8 @@ void loop() {
   int timeDelay = 100; // Delay in milliseconds between data collection - change it according to rate of variance in measured distance
   int arrSize = 10; // Define array size
   int distanceArr[arrSize];
-
+  int range;
+  
   // Collect the 100 data points from sensor and store in the array
   for(int i=0; i<arrSize; i++) {
     distanceArr[i] = getSensorData();
@@ -55,8 +62,14 @@ void loop() {
       }
     }
   }
-  
+ 
   // Print the distance on the Serial Monitor
   Serial.print("Distance: ");
   Serial.println(distanceArr[arrSize/2]);
+
+  // Calculate the range as level gradations with median of sensor data array
+  range = (distanceArr[arrSize/2] - highPoint) * 100 / lowPoint;
+
+  // Print range on the Serial Monitor
+  Serial.println(range);
 }
