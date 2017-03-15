@@ -1,18 +1,30 @@
 
+#include <RH_ASK.h> // RadioHead ASK library
+#include <SPI.h> // Not actually used but needed to compile RH_ASK based code
+
 // Define pins numbers
-const int trigPin = 9;
-const int echoPin = 10;
+const int trigPin = 5;
+const int echoPin = 6;
+
+// Create RH_ASK driver
+RH_ASK driver;
 
 // Define water level points - it would inverse of tank height due to use of ultrasound sensor
 // Edit them according to use case and scenario - currently in cm
-const float highPoint = 10; // Highest tank full point
+const float highPoint = 10; // Highest tank full point`
 const float lowPoint = 50; // Tank empty point
 // const float buffPoint = 5; // Give some buffer for motor switch on/off - taking into account possible sensor noise and signal delays
 
 void setup() {
   pinMode(trigPin, OUTPUT); // Set the trigPin as an Output
   pinMode(echoPin, INPUT); // Set the echoPin as an Input
-  Serial.begin(9600); // Start the serial communication
+
+  Serial.begin(9600); // Debugging only
+
+  // See if RH_ASK driver initialized
+  if (!driver.init())
+         Serial.println("init failed");
+
 }
 
 // Routine to distance data from Ultrasound sensor
@@ -45,6 +57,7 @@ void loop() {
   int arrSize = 10; // Define array size
   int distanceArr[arrSize];
   int range;
+  char msg;
   
   // Collect the 100 data points from sensor and store in the array
   for(int i=0; i<arrSize; i++) {
@@ -68,18 +81,28 @@ void loop() {
   // Constrain the range between 0 and 100 to clip noise or extraneous data
   range = constrain(range, 0, 100);
   
-  // Create level gradations based on range and print it on serial
+  // Create level gradations based on range and transmit it over RF433
   if (range >= 95) 
-    Serial.println(0);
+    msg = '0';
   else if (range >= 75)
-    Serial.println(1);
+    msg = '1';
   else if (range >= 50)
-    Serial.println(2);
+    msg =  '2';
   else if (range >= 25)
-    Serial.println(3);
+    msg =  '3';
   else if (range >= 5)
-    Serial.println(4);
+    msg = '4';
   else
-    Serial.println(5);
+    msg = '5';
+
+  // Message check over serial monitor
+  Serial.println(msg);
+  
+  // Transmitting the gradation data over RF433
+  const char *msgPointer = &msg;
+  Serial.println(msgPointer);
+  Serial.println(*msgPointer);
+  driver.send((uint8_t *)msgPointer, strlen(msgPointer));
+  driver.waitPacketSent();
 
 }
