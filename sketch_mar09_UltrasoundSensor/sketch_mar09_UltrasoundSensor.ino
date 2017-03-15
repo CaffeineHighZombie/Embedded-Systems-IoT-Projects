@@ -19,8 +19,6 @@ void setup() {
   pinMode(trigPin, OUTPUT); // Set the trigPin as an Output
   pinMode(echoPin, INPUT); // Set the echoPin as an Input
 
-  Serial.begin(9600); // Debugging only
-
   // See if RH_ASK driver initialized
   if (!driver.init())
          Serial.println("init failed");
@@ -94,14 +92,9 @@ void loop() {
     msg = '4';
   else
     msg = '5';
-
-  // Message check over serial monitor
-  Serial.println(msg);
   
   // Transmitting the gradation data over RF433
   const char *msgPointer = &msg;
-  Serial.println(msgPointer);
-  Serial.println(*msgPointer);
   driver.send((uint8_t *)msgPointer, strlen(msgPointer));
   driver.waitPacketSent();
 

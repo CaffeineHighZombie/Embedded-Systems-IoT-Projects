@@ -1,5 +1,11 @@
 
-// Define pins for 5 LEDs
+#include <RH_ASK.h> // RadioHead ASK library
+#include <SPI.h> // Not actually used but needed to compile RH_ASK based code
+
+// Create RH_ASK driver
+RH_ASK driver;
+
+// Define pins for 6 LEDs
 const int lowLed = 2; // Low level indicator
 const int oneLed = 3; // Below one-fourth level indicator
 const int twoLed = 4; // Below two-fourth level indicator
@@ -15,9 +21,12 @@ void setup() {
   pinMode(threeLed, OUTPUT);
   pinMode(fourLed, OUTPUT);
   pinMode(highLed, OUTPUT);
+
+  Serial.begin(9600); // Debugging only
   
-  // Start Serial
-  Serial.begin(9600);
+  // See if RH_ASK driver initialized
+  if (!driver.init())
+         Serial.println("init failed");
   
 }
 
@@ -39,41 +48,41 @@ void turnOnLed(int ledPin) {
 
 void loop() {
 
-  // Wait till there's data on the Serial
-  while(Serial.available() == 0);
-  char sData = Serial.read(); // Data sent over the serial line being char byte data
-  
-  // Map LED switch-on to the input serial data
-  switch (sData) {
-    case '0':
-      turnOffAll();
-      turnOnLed(lowLed);
-      break;
-    case '1':
-      turnOffAll();
-      turnOnLed(oneLed);
-      break;
-    case '2':
-      turnOffAll();
-      turnOnLed(twoLed);
-      break;
-    case '3':
-      turnOffAll();
-      turnOnLed(threeLed);
-      break;
-    case '4':
-      turnOffAll();
-      turnOnLed(fourLed);
-      break;
-    case '5':
-      turnOffAll();
-      turnOnLed(highLed);
-      break;
-  
+  uint8_t buf[1];
+  uint8_t buflen = sizeof(buf);
+  if (driver.recv(buf, &buflen)) // Non-blocking
+  {
+   char data = *buf;
+   // Map LED switch-on to the input serial data
+    switch (data) {
+      case '0':
+        turnOffAll();
+        turnOnLed(lowLed);
+        break;
+      case '1':
+        turnOffAll();
+        turnOnLed(oneLed);
+        break;
+      case '2':
+        turnOffAll();
+        turnOnLed(twoLed);
+        break;
+      case '3':
+        turnOffAll();
+        turnOnLed(threeLed);
+        break;
+      case '4':
+        turnOffAll();
+        turnOnLed(fourLed);
+        break;
+      case '5':
+        turnOffAll();
+        turnOnLed(highLed);
+        break;
+
+    }
   }
-
+  
   delay(100); // Just an arbitrary 100ms delay
-  // Flush out serial buffer
-  Serial.flush();  
-
+ 
 }
