@@ -13,6 +13,14 @@ const int threeLed = 5; // Below three-fourth level indicator
 const int fourLed = 6; // Below full level indicator
 const int highLed = 7; // Full level indicator
 
+// Define Relay Pin for Motor control
+const int relayPin = 8;
+
+// Flow State flags for Motor On/Off check subroutines
+const int arrSize = 5;
+int previousState[arrSize] = {-1, -1, -1, -1, -1};
+boolean motorState = false;
+
 void setup() {
   // Setup the LED pins as output
   pinMode(lowLed, OUTPUT);
@@ -46,6 +54,39 @@ void turnOnLed(int ledPin) {
   digitalWrite(ledPin, HIGH);
 }
 
+// Subroutine to check previous motor state and if the previous stream of meesage indicates full level state - and switch off motor appropriately
+void motorOffCheck() {
+  int arrSum = 0;
+  for(int i=0; i<arrSize; i++)
+    arrSum += previousState[i];
+  
+  if ((arrSum >= 23 && arrSum <= 25) && motorState == true) {
+    digitalWrite(relayPin, LOW);
+    motorState = false;
+  }
+}
+
+// Subroutine to check previous motor state and if the strem of meesage indicates low level state - and switch on motor appropriately
+void motorOnCheck() {
+  int arrSum = 0;
+  for(int i=0; i<arrSize; i++)
+    arrSum += previousState[i];
+  
+  if ((arrSum >= 0 && arrSum <= 2) && motorState == false) {
+    digitalWrite(relayPin, HIGH);
+    motorState = true;
+  }
+}
+
+// Subroutine implementing FIFO in the form of list - shift data points to left, drop the first element and add argument as last element in the list
+void previousStateAdd(int num) {
+  for(int i=0; i<arrSize-1; i++) {
+    previousState[i] = previousState[i+1];
+  }
+  previousState[arrSize]= num;
+}
+
+// Main loop
 void loop() {
 
   uint8_t buf[1];
@@ -58,31 +99,39 @@ void loop() {
       case '0':
         turnOffAll();
         turnOnLed(lowLed);
+        previousStateAdd(0);
+        motorOnCheck();
         break;
       case '1':
         turnOffAll();
         turnOnLed(oneLed);
+        previousStateAdd(1);
         break;
       case '2':
         turnOffAll();
         turnOnLed(twoLed);
+        previousStateAdd(2);
         break;
       case '3':
         turnOffAll();
         turnOnLed(threeLed);
+        previousStateAdd(3);
         break;
       case '4':
         turnOffAll();
         turnOnLed(fourLed);
+        previousStateAdd(4);
         break;
       case '5':
         turnOffAll();
         turnOnLed(highLed);
+        previousStateAdd(5);
+        motorOffCheck();
         break;
 
     }
   }
   
-  delay(100); // Just an arbitrary 100ms delay
+  delay(10); // Just an arbitrary 10ms delay
  
 }
